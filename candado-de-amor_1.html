@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💌 Candado de Amor</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(160deg, #fde8ef 0%, #fcc8d8 50%, #f9afc5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ======= CORAZONES FLOTANTES HACIA ARRIBA ======= */
+.hearts-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.floating-heart {
+  position: absolute;
+  bottom: -60px;
+  animation: riseUp linear infinite;
+  opacity: 0;
+  user-select: none;
+  line-height: 1;
+}
+@keyframes riseUp {
+  0%   { transform: translateY(0) scale(0.6) rotate(-10deg); opacity: 0; }
+  8%   { opacity: 0.9; }
+  92%  { opacity: 0.5; }
+  100% { transform: translateY(-110vh) scale(1.1) rotate(10deg); opacity: 0; }
+}
+
+/* ======= APP ======= */
+.app {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 420px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+}
+
+/* ======= PANTALLA 1: CANDADO ======= */
+#screen1 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+  animation: fadeInScale 0.6s ease;
+}
+@keyframes fadeInScale {
+  from { opacity:0; transform:scale(0.85); }
+  to   { opacity:1; transform:scale(1); }
+}
+
+.lock-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  padding: 24px 36px;
+  border-radius: 24px;
+  border: none;
+  background: transparent;
+  transition: transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.lock-btn:hover  { transform: scale(1.05); }
+.lock-btn:active { transform: scale(0.95); }
+
+.lock-svg {
+  width: 155px;
+  height: 165px;
+  filter: drop-shadow(0 14px 32px rgba(210,50,90,0.38));
+  animation: heartPulse 2s ease-in-out infinite;
+}
+@keyframes heartPulse {
+  0%,100% { transform: scale(1); }
+  15%     { transform: scale(1.1); }
+  30%     { transform: scale(1); }
+  45%     { transform: scale(1.06); }
+}
+
+.click-hint {
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.2rem;
+  color: #c03060;
+  animation: blink 1.9s ease-in-out infinite;
+  text-align: center;
+}
+@keyframes blink {
+  0%,100% { opacity:1; }
+  50%     { opacity:0.3; }
+}
+
+/* ======= PANTALLA 2: TECLADO ======= */
+#screen2 {
+  display: none;
+  width: 100%;
+  animation: popUp 0.45s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes popUp {
+  from { transform:scale(0.65) translateY(50px); opacity:0; }
+  to   { transform:scale(1) translateY(0); opacity:1; }
+}
+
+.numpad-box {
+  background: rgba(255,255,255,0.96);
+  border-radius: 30px;
+  padding: 30px 26px 26px;
+  box-shadow: 0 18px 55px rgba(200,55,95,0.22);
+  border: 2px solid rgba(255,175,198,0.6);
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.np-title {
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.5rem;
+  color: #aa2a55;
+  text-align: center;
+  margin-bottom: 18px;
+}
+.np-title .hrt { color: #e8416f; }
+
+.date-display {
+  background: #fff5f8;
+  border: 2px solid #f5b5ca;
+  border-radius: 14px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #8b2a4e;
+  letter-spacing: 4px;
+  margin-bottom: 22px;
+  transition: all 0.22s;
+}
+.date-display.empty {
+  color: #d8a0b5;
+  letter-spacing: 2px;
+  font-size: 0.92rem;
+  font-weight: 400;
+}
+.date-display.wrong {
+  border-color: #e02050;
+  background: #ffeef2;
+  animation: shake 0.45s ease;
+}
+@keyframes shake {
+  0%,100% { transform:translateX(0); }
+  20%     { transform:translateX(-10px); }
+  40%     { transform:translateX(10px); }
+  60%     { transform:translateX(-6px); }
+  80%     { transform:translateX(6px); }
+}
+
+.row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:10px; }
+.row-last { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+
+.key {
+  height: 58px;
+  background: #fff8fa;
+  border: 2px solid #f5c8d8;
+  border-radius: 14px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #8b2a4e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Nunito', sans-serif;
+  transition: all 0.12s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.key:hover  { background:#fde0ea; transform:scale(1.07); border-color:#f090aa; }
+.key:active { background:#f9b5ca; transform:scale(0.92); }
+
+.key-del {
+  height: 58px;
+  background: #fff5f8;
+  border: 2px solid #f5c8d8;
+  border-radius: 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #e03568;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Nunito', sans-serif;
+  transition: all 0.12s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.key-del:hover  { background:#fde0ea; transform:scale(1.07); }
+.key-del:active { background:#f9b5ca; transform:scale(0.92); }
+
+.key-ok {
+  height: 58px;
+  background: linear-gradient(140deg, #f07090, #df2860);
+  border: none;
+  border-radius: 14px;
+  font-size: 1.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 20px rgba(220,40,88,0.45);
+  transition: all 0.15s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.key-ok:hover  { transform:scale(1.1); box-shadow:0 7px 26px rgba(220,40,88,0.6); }
+.key-ok:active { transform:scale(0.92); }
+
+.back-link {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: #c8a0b0;
+  cursor: pointer;
+  transition: color 0.18s;
+  user-select: none;
+}
+.back-link:hover { color: #e03568; }
+
+/* ======= PANTALLA 3: CARTA ======= */
+#screen3 {
+  display: none;
+  width: 100%;
+  animation: openLetter 0.65s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes openLetter {
+  from { transform:scale(0.45) rotate(-10deg); opacity:0; }
+  to   { transform:scale(1) rotate(0); opacity:1; }
+}
+
+.letter-box {
+  background: rgba(255,255,255,0.97);
+  border-radius: 30px;
+  padding: 28px 24px 24px;
+  box-shadow: 0 18px 55px rgba(200,55,95,0.28);
+  border: 2px solid rgba(255,175,198,0.6);
+  max-width: 360px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.song-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(235,90,130,0.1);
+  border: 1.5px solid #f5b5ca;
+  border-radius: 50px;
+  padding: 5px 18px;
+  font-size: 0.83rem;
+  color: #d83060;
+  font-weight: 700;
+  margin-bottom: 18px;
+  animation: floatSong 3s ease-in-out infinite;
+}
+@keyframes floatSong {
+  0%,100% { transform:translateY(0); }
+  50%     { transform:translateY(-7px); }
+}
+
+.letter-visual {
+  background: linear-gradient(145deg, #fde0ea 0%, #f9b5ca 100%);
+  border-radius: 20px;
+  padding: 24px 16px 18px;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.letter-visual::before {
+  content: '';
+  position: absolute;
+  top: -20px; right: -20px;
+  width: 90px; height: 90px;
+  background: radial-gradient(circle, rgba(255,255,255,0.35), transparent 70%);
+  border-radius: 50%;
+}
+
+.teamo {
+  font-family: 'Dancing Script', cursive;
+  font-size: 3.5rem;
+  color: #d82860;
+  line-height: 1;
+  text-shadow: 0 3px 14px rgba(215,45,90,0.28);
+}
+.big-heart {
+  font-size: 2.8rem;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 6px;
+  animation: bigPulse 1.4s ease-in-out infinite;
+}
+@keyframes bigPulse {
+  0%,100% { transform:scale(1); }
+  50%     { transform:scale(1.25); }
+}
+.bouquet {
+  font-size: 3rem;
+  display: block;
+  margin-top: 10px;
+  animation: swingIt 2.5s ease-in-out infinite;
+}
+@keyframes swingIt {
+  0%,100% { transform:rotate(-6deg); }
+  50%     { transform:rotate(6deg); }
+}
+
+.letter-text {
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.1rem;
+  color: #7a2845;
+  line-height: 1.85;
+  margin-bottom: 22px;
+}
+
+.btn-guardar {
+  background: linear-gradient(140deg, #f07090, #df2860);
+  border: none;
+  border-radius: 50px;
+  padding: 13px 34px;
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 5px 20px rgba(220,40,88,0.45);
+  transition: all 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-guardar:hover  { transform:scale(1.07); box-shadow:0 7px 26px rgba(220,40,88,0.6); }
+.btn-guardar:active { transform:scale(0.94); }
+
+/* ======= CONFETTI ======= */
+.confetti-p {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  animation: cFall 1.4s ease-out forwards;
+}
+@keyframes cFall {
+  0%   { opacity:1; transform:translateY(-10px) rotate(0deg) scale(1); }
+  100% { opacity:0; transform:translateY(260px) rotate(600deg) scale(0.3); }
+}
+</style>
+</head>
+<body>
+
+<div class="hearts-container" id="heartsContainer"></div>
+
+<div class="app">
+
+  <!-- PANTALLA 1 -->
+  <div id="screen1">
+    <button class="lock-btn" onclick="goToNumpad()">
+      <svg class="lock-svg" viewBox="0 0 160 175" xmlns="http://www.w3.org/2000/svg">
+        <!-- Arco del candado -->
+        <path d="M60 80 L60 44 Q60 16 80 16 Q100 16 100 44 L100 80"
+              fill="none" stroke="#999" stroke-width="13" stroke-linecap="round"/>
+        <!-- Corazón -->
+        <path d="M80 158
+                 C80 158, 16 112, 16 68
+                 C16 42, 35 28, 57 36
+                 C67 40, 74 47, 80 57
+                 C86 47, 93 40, 103 36
+                 C125 28, 144 42, 144 68
+                 C144 112, 80 158, 80 158Z"
+              fill="url(#hg2)"/>
+        <!-- Brillo suave -->
+        <ellipse cx="60" cy="62" rx="16" ry="10" fill="rgba(255,255,255,0.25)" transform="rotate(-25,60,62)"/>
+        <!-- Cerradura -->
+        <circle cx="80" cy="100" r="12" fill="#b5284e"/>
+        <rect x="74.5" y="109" width="11" height="16" rx="4.5" fill="#b5284e"/>
+        <defs>
+          <radialGradient id="hg2" cx="35%" cy="32%" r="68%">
+            <stop offset="0%"  stop-color="#ffb8cc"/>
+            <stop offset="55%" stop-color="#f06080"/>
+            <stop offset="100%" stop-color="#cc2858"/>
+          </radialGradient>
+        </defs>
+      </svg>
+      <div class="click-hint">♥ Haz clic para abrir mi corazón ♥</div>
+    </button>
+  </div>
+
+  <!-- PANTALLA 2 -->
+  <div id="screen2">
+    <div class="numpad-box">
+      <div class="np-title"><span class="hrt">♥</span> Fecha Especial <span class="hrt">♥</span></div>
+      <div class="date-display empty" id="dateDisplay">DD / MM / AAAA</div>
+      <div class="row">
+        <div class="key" onclick="pressKey('1')">1</div>
+        <div class="key" onclick="pressKey('2')">2</div>
+        <div class="key" onclick="pressKey('3')">3</div>
+      </div>
+      <div class="row">
+        <div class="key" onclick="pressKey('4')">4</div>
+        <div class="key" onclick="pressKey('5')">5</div>
+        <div class="key" onclick="pressKey('6')">6</div>
+      </div>
+      <div class="row">
+        <div class="key" onclick="pressKey('7')">7</div>
+        <div class="key" onclick="pressKey('8')">8</div>
+        <div class="key" onclick="pressKey('9')">9</div>
+      </div>
+      <div class="row-last">
+        <div class="key-del" onclick="deleteKey()">Borrar</div>
+        <div class="key" onclick="pressKey('0')">0</div>
+        <div class="key-ok" onclick="checkDate()">❤</div>
+      </div>
+      <div class="back-link" onclick="goBack()">← Volver</div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 3 -->
+  <div id="screen3">
+    <div class="letter-box">
+      <div class="song-tag">🎵 Te dedico esta canción 🎵</div>
+      <div class="letter-visual">
+        <div>
+          <span class="teamo">Te amo</span><span class="big-heart">💗</span>
+        </div>
+        <span class="bouquet">💐</span>
+      </div>
+      <div class="letter-text">
+        Desde el primer día contigo,<br>
+        cada momento se vuelve eterno. 🌹<br>
+        Eres mi fecha especial,<br>
+        mi razón para sonreír. 💌<br><br>
+        <strong>Te amo más de lo que imaginas.</strong>
+      </div>
+      <button class="btn-guardar" onclick="restart()">💌 Guardar Carta</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ===== CORAZONES FLOTANDO HACIA ARRIBA =====
+  const container = document.getElementById('heartsContainer');
+  const syms = ['♥','❤','♡','💕','💗','💖','🌸','♥','❤','♡'];
+
+  function spawnHeart() {
+    const el = document.createElement('div');
+    el.className = 'floating-heart';
+    const size    = 0.75 + Math.random() * 1.5;
+    const left    = Math.random() * 100;
+    const dur     = 8 + Math.random() * 11;
+    const delay   = Math.random() * 5;
+    el.textContent = syms[Math.floor(Math.random() * syms.length)];
+    el.style.cssText = `
+      left:${left}vw;
+      font-size:${size}rem;
+      animation-duration:${dur}s;
+      animation-delay:${delay}s;
+      color:${Math.random()>0.5?'#e8416f':'#f080a0'};
+    `;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), (dur + delay) * 1000 + 800);
+  }
+  for(let i=0;i<22;i++) spawnHeart();
+  setInterval(spawnHeart, 650);
+
+  // ===== TECLADO =====
+  const SECRET = '02012026';
+  let digits = '';
+
+  function fmt(d) {
+    const p = (d + '________').slice(0,8);
+    return `${p.slice(0,2)} / ${p.slice(2,4)} / ${p.slice(4,8)}`;
+  }
+
+  function refreshDisplay() {
+    const el = document.getElementById('dateDisplay');
+    el.classList.remove('wrong');
+    if (!digits) {
+      el.textContent = 'DD / MM / AAAA';
+      el.classList.add('empty');
+    } else {
+      el.textContent = fmt(digits);
+      el.classList.remove('empty');
+    }
+  }
+
+  function pressKey(n) {
+    if (digits.length >= 8) return;
+    digits += n;
+    refreshDisplay();
+  }
+
+  function deleteKey() {
+    digits = digits.slice(0,-1);
+    refreshDisplay();
+  }
+
+  function checkDate() {
+    if (digits.length < 8) { shakeIt(); return; }
+    if (digits === SECRET) {
+      launchConfetti();
+      setTimeout(() => {
+        document.getElementById('screen2').style.display = 'none';
+        document.getElementById('screen3').style.display = 'block';
+      }, 480);
+    } else {
+      shakeIt();
+      setTimeout(() => { digits=''; refreshDisplay(); }, 620);
+    }
+  }
+
+  function shakeIt() {
+    const el = document.getElementById('dateDisplay');
+    el.classList.add('wrong');
+    setTimeout(() => el.classList.remove('wrong'), 500);
+  }
+
+  function goToNumpad() {
+    document.getElementById('screen1').style.display = 'none';
+    document.getElementById('screen2').style.display = 'block';
+    digits = ''; refreshDisplay();
+  }
+
+  function goBack() {
+    document.getElementById('screen2').style.display = 'none';
+    document.getElementById('screen1').style.display = 'flex';
+  }
+
+  function restart() {
+    document.getElementById('screen3').style.display = 'none';
+    document.getElementById('screen1').style.display = 'flex';
+  }
+
+  // ===== CONFETTI =====
+  function launchConfetti() {
+    const colors = ['#f07090','#df2860','#ffb5ca','#fff','#ffd6e5','#f0a0b5'];
+    for(let i=0;i<60;i++){
+      const c = document.createElement('div');
+      c.className = 'confetti-p';
+      const size = 6 + Math.random()*8;
+      c.style.cssText=`
+        left:${8+Math.random()*84}vw;
+        top:${10+Math.random()*55}vh;
+        width:${size}px; height:${size}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:${Math.random()>0.5?'50%':'3px'};
+        animation-delay:${Math.random()*0.5}s;
+      `;
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(), 1900);
+    }
+  }
+</script>
+</body>
+</html>
